@@ -1,1 +1,0 @@
-var main = require('./src/start-mediacenter.js');
