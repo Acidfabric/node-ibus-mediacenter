@@ -1,3 +1,4 @@
+import { interfaces, messages } from '../constants';
 import { IbusInterface } from '../ibus';
 import { getPaddedLenBuf } from '../utils';
 
@@ -10,41 +11,25 @@ class GraphicsNavigationOutputDevice {
   }
 
   public updateScreen() {
-    this.ibusInterface.sendMessage({
-      src: 0x68,
-      dst: 0x3b,
-      msg: Buffer.from([0xa5, 0x62, 0x01]),
-    });
+    this.ibusInterface.sendMessage(messages.navigation.updateScreen);
   }
 
   public refreshOptions() {
-    this.ibusInterface.sendMessage({
-      src: 0x68,
-      dst: 0x3b,
-      msg: Buffer.from([0xa5, 0x60, 0x01, 0x00]),
-    });
+    this.ibusInterface.sendMessage(messages.navigation.refreshOptions);
   }
 
   public refreshTop() {
-    this.ibusInterface.sendMessage({
-      src: 0x68,
-      dst: 0x3b,
-      msg: Buffer.from([0xa5, 0x62, 0x01, 0x00]),
-    });
+    this.ibusInterface.sendMessage(messages.navigation.refreshTop);
   }
 
   public showStatus() {
-    this.ibusInterface.sendMessage({
-      src: 0x68,
-      dst: 0x3b,
-      msg: Buffer.from([0xa5, 0x62, 0x01, 0x06]),
-    });
+    this.ibusInterface.sendMessage(messages.navigation.showStatus);
   }
 
   public setTitle(text: string) {
     this.ibusInterface.sendMessage({
-      src: 0x68,
-      dst: 0x3b,
+      src: interfaces.Radio,
+      dst: interfaces.GraphicsNavigationDriver,
       msg: Buffer.concat([Buffer.from([0x23, 0x62, 0x10]), getPaddedLenBuf(text, 11)]),
     });
   }
@@ -54,8 +39,8 @@ class GraphicsNavigationOutputDevice {
     const indexCode = index === 7 ? 0x07 : 0x40 + index;
 
     this.ibusInterface.sendMessage({
-      src: 0x68,
-      dst: 0x3b,
+      src: interfaces.Radio,
+      dst: interfaces.GraphicsNavigationDriver,
       msg: Buffer.concat([Buffer.from([0x21, 0x60, 0x00, indexCode]), getPaddedLenBuf(text, 14)]),
     });
   }
@@ -71,8 +56,8 @@ class GraphicsNavigationOutputDevice {
     if (5 <= index && index <= 6) len = 20;
 
     this.ibusInterface.sendMessage({
-      src: 0x68,
-      dst: 0x3b,
+      src: interfaces.Radio,
+      dst: interfaces.GraphicsNavigationDriver,
       msg: Buffer.concat([Buffer.from([0xa5, 0x62, 0x01, indexCode]), getPaddedLenBuf(text, len)]),
     });
   }

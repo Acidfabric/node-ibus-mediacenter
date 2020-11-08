@@ -8,7 +8,6 @@ export function isEq(op1: Buffer, op2: Buffer) {
 
 export function repeat(callback: () => void, times: number) {
   for (let i = 0; i < times; i++) {
-    console.log('running', i, times);
     callback();
   }
 }

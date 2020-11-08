@@ -6,7 +6,7 @@ import loggerSystem from '../logger';
 import { getHrDiffTime } from '../utils';
 
 import IbusProtocol from './IbusProtocol';
-import { OutgoingMessage } from './types';
+import { IncommingMessage, OutgoingMessage } from './types';
 
 const logger = loggerSystem.child({ service: 'IbusInterface' });
 
@@ -54,9 +54,9 @@ class IbusInterface extends EventEmitter {
 
     this.serialPort.write(dataBuf, (error, resp) => {
       if (error) {
-        logger.error('Failed to write: ' + error);
+        logger.error('Failed to write', error);
       } else {
-        logger.info('Wrote to Device: ', dataBuf, resp);
+        logger.info('Wrote to Device', dataBuf, resp);
 
         this.serialPort.drain((_error) => {
           this.lastActivityTime = process.hrtime();
@@ -76,7 +76,7 @@ class IbusInterface extends EventEmitter {
     this.shutdown(this.startup);
   }
 
-  private onMessage(message) {
+  private onMessage(message: IncommingMessage) {
     logger.debug(
       'Raw Message: ',
       message.src,
@@ -90,12 +90,24 @@ class IbusInterface extends EventEmitter {
     this.emit('data', message);
   }
 
+  public sendMessage(message: OutgoingMessage) {
+    const dataBuf = IbusProtocol.createIbusMessage(message);
+    logger.debug('Send message: ', dataBuf);
+
+    if (this.queue.length > 1000) {
+      logger.warning('Queue too large, dropping message..', dataBuf);
+      return;
+    }
+
+    this.queue.unshift(dataBuf);
+  }
+
   public startup() {
     this.serialPort.open((error) => {
       if (error) {
-        logger.error('Failed to open: ' + error);
+        logger.error(error.message);
       } else {
-        logger.info('Port Open [' + this.device + ']');
+        logger.info('Port Open.');
         this.serialPort.on('data', this.onData);
         this.serialPort.on('error', this.onError);
 
@@ -112,26 +124,14 @@ class IbusInterface extends EventEmitter {
     logger.info('Shutting down Ibus device..');
     this.serialPort.close((error) => {
       if (error) {
-        logger.error('Error closing port: ', error);
+        logger.error(error);
       } else {
-        logger.info('Port Closed [' + this.device + ']');
+        logger.info('Port Closed.');
         this.parser = null;
       }
 
       callback();
     });
-  }
-
-  public sendMessage(message: OutgoingMessage) {
-    const dataBuf = IbusProtocol.createIbusMessage(message);
-    logger.debug('Send message: ', dataBuf);
-
-    if (this.queue.length > 1000) {
-      logger.warning('Queue too large, dropping message..', dataBuf);
-      return;
-    }
-
-    this.queue.unshift(dataBuf);
   }
 }
 

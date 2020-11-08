@@ -1,10 +1,10 @@
-// import log from 'log';
 import keypress from 'keypress';
 
 import { RemoteControlClient } from '../types';
 import XbmcClient from '../clients/XbmcClient';
 import IbusDebuggerDevice from '../devices/IbusDebuggerDevice';
 import loggerSystem from '../logger';
+
 import { RemoteClients } from './types';
 
 const logger = loggerSystem.child({ service: 'KeyboardEventListener' });
@@ -29,7 +29,7 @@ class KeyboardEventListener {
     keypress(process.stdin);
 
     process.stdin.on('keypress', (ch, key) => {
-      //console.log('got "keypress"', ch, key);
+      logger.debug('got "keypress"', ch, key);
       if (!(key && key.name)) {
         key = {
           name: ch,

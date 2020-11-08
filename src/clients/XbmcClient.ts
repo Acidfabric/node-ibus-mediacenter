@@ -26,15 +26,15 @@ class XbmcClient implements RemoteControlClient {
     this.xbmcApi.setConnection(connection);
 
     this.xbmcApi.on('connection:data', (data: any) => {
-      logger.debug('Data', data);
+      logger.debug('Client data.', data);
     });
 
     this.xbmcApi.on('connection:open', () => {
-      logger.debug('Connection open');
+      logger.debug('Client connection open.');
     });
 
     this.xbmcApi.on('connection:close', () => {
-      logger.debug('Closing');
+      logger.debug('Client connection closing.');
     });
 
     this.xbmcApi.on('error', (error: Error) => {

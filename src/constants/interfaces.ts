@@ -1,4 +1,4 @@
-const devices = {
+const interfaces = {
   BodyModule: 0x00,
   SunroofControl: 0x08,
   CDChanger: 0x18,
@@ -41,4 +41,4 @@ const devices = {
   Broadcast: 0xff,
 };
 
-export { devices };
+export { interfaces };
