@@ -1,6 +1,8 @@
+import autoBind from 'auto-bind';
+
 import { interfaces, messages } from '../constants';
-import { IbusInterface } from '../ibus';
 import { getPaddedLenBuf } from '../utils';
+import { IbusInterface } from '../ibus';
 
 class GraphicsNavigationOutputDevice {
   private deviceName = 'BordMonitorOutput';
@@ -8,6 +10,8 @@ class GraphicsNavigationOutputDevice {
 
   constructor(ibusInterface: IbusInterface) {
     this.ibusInterface = ibusInterface;
+
+    autoBind(this);
   }
 
   public updateScreen() {
@@ -63,4 +67,4 @@ class GraphicsNavigationOutputDevice {
   }
 }
 
-export default GraphicsNavigationOutputDevice;
+export { GraphicsNavigationOutputDevice };

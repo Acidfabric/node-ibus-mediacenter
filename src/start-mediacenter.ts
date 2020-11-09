@@ -1,36 +1,17 @@
-// import cluster from 'cluster';
 // import MK4ToMk3CDTextDevice from './devices/MK4ToMk3CDTextDevice';
 // import GraphicsNavigationOutputDevice from './devices/GraphicsNavigationOutputDevice';
 // import IbusDebuggerDevice from './devices/IbusDebuggerDevice';
 // import MpdClient from './clients/MpdClient';
 // import KeyboardEventListener from './listeners/KeyboardEventListener';
-// import { IbusInterface } from 'ibus';
 
+import { IbusEventListener } from './listeners';
 import { IbusInterface } from './ibus';
 import loggerSystem from './logger';
-import XbmcClient from './clients/XbmcClient';
-import IbusEventClient from './listeners/IbusEventListener';
+import { XbmcClient } from './clients';
 
 const logger = loggerSystem.child({ service: 'MediaCenter' });
 
-// if (cluster.isMaster) {
-//   cluster.fork();
-
-//   cluster.on('exit', (worker, code, _signal) => {
-//     if (code === 0) {
-//       log.error('Worker ' + worker.id + ' died..');
-//       cluster.fork();
-//     } else {
-//       log.error('Worker ' + worker.id + ' terminated..');
-//     }
-//   });
-// } else {
-
-// config
-// const device = '/dev/ttys003';
-// var device = '/dev/ttyUSB0';
-// const device = '/dev/cu.usbserial-A601HPGR';
-const device = '/dev/ttyAMA0'; // bluetooth
+const device = '/dev/tty.Bluetooth-Incoming-Port'; // bluetooth
 
 const ibusInterface = new IbusInterface(device);
 
@@ -77,11 +58,11 @@ function shutdown(successFn: () => void) {
   });
 }
 
-export function startup() {
+function startup() {
   ibusInterface.startup();
 
   // Mpd Client
-  //var mpc = new MpdClient();
+  // const mpc = new MpdClient();
 
   // Graphics Navidagtion Device pirate
   //var navOutput = new GraphicsNavigationOutputDevice(ibusInterface);
@@ -99,6 +80,8 @@ export function startup() {
   // keyboardEventListener.setRemoteControlClient('xbmc', xbmcc);
   // keyboardEventListener.setRemoteControlClient('ibus', ibusDebuggerDevice);
 
-  const ibusEventClient = new IbusEventClient(ibusInterface);
+  const ibusEventClient = new IbusEventListener(ibusInterface);
   ibusEventClient.setRemoteControlClient('xbmc', xbmcc);
 }
+
+export { startup };

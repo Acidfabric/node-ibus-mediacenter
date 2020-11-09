@@ -1,6 +1,9 @@
 import { Transform, TransformCallback, TransformOptions } from 'stream';
+import autoBind from 'auto-bind';
+
 import loggerSystem from '../logger';
-import { IncommingMessage, OutgoingMessage } from './types';
+
+import { IncommingMessage } from './types';
 
 const logger = loggerSystem.child({ service: 'IbusProtocol' });
 
@@ -11,9 +14,12 @@ class IbusProtocol extends Transform {
 
   constructor(options: TransformOptions = {}) {
     super(options);
+
     this.buffer = Buffer.alloc(0);
     this.processId = 0;
     this.isProcessing = false;
+
+    autoBind(this);
   }
 
   _transform(chunk: Uint8Array, _encoding: BufferEncoding, cb: TransformCallback) {
@@ -101,28 +107,6 @@ class IbusProtocol extends Transform {
     this.isProcessing = false;
 
     cb();
-  }
-
-  static createIbusMessage(msg: OutgoingMessage) {
-    const packetLength = 4 + msg.msg.length;
-    const buf = Buffer.alloc(packetLength);
-
-    buf[0] = msg.src;
-    buf[1] = msg.msg.length + 2;
-    buf[2] = msg.dst;
-
-    for (let i = 0; i < msg.msg.length; i++) {
-      buf[3 + i] = msg.msg[i];
-    }
-
-    let crc = 0x00;
-    for (let i = 0; i < buf.length - 1; i++) {
-      crc ^= buf[i];
-    }
-
-    buf[3 + msg.msg.length] = crc;
-
-    return buf;
   }
 }
 

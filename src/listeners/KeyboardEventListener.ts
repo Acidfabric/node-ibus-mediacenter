@@ -1,9 +1,10 @@
+import autoBind from 'auto-bind';
 import keypress from 'keypress';
 
-import { RemoteControlClient } from '../types';
-import XbmcClient from '../clients/XbmcClient';
-import IbusDebuggerDevice from '../devices/IbusDebuggerDevice';
+import { IbusDebuggerDevice } from '../devices';
 import loggerSystem from '../logger';
+import { RemoteControlClient } from '../types';
+import { XbmcClient } from '../clients';
 
 import { RemoteClients } from './types';
 
@@ -15,6 +16,9 @@ class KeyboardEventListener {
 
   constructor(callback?: () => void) {
     this.callback = callback;
+
+    autoBind(this);
+
     this.setupKeyboardListiner();
   }
 
@@ -112,4 +116,4 @@ class KeyboardEventListener {
   }
 }
 
-export default KeyboardEventListener;
+export { KeyboardEventListener };

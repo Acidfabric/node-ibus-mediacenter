@@ -1,4 +1,5 @@
 import { cmd, connect } from 'mpd';
+import autoBind from 'auto-bind';
 
 import { config } from '../config';
 import loggerSystem from '../logger';
@@ -13,6 +14,8 @@ class MpdClient {
       port: config.mpdPort,
       host: config.mpdHost,
     });
+
+    autoBind(this);
 
     this.setupClient();
   }
@@ -69,4 +72,4 @@ class MpdClient {
   }
 }
 
-export default MpdClient;
+export { MpdClient };

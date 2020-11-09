@@ -5,4 +5,5 @@ export const config = {
   xbmcPassword: 'kodi',
   mpdPort: 6600,
   mpdHost: 'localhost',
+  iBusBaudRate: 9600,
 };

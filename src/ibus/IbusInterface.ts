@@ -1,12 +1,14 @@
-import SerialPort from 'serialport';
+import autoBind from 'auto-bind';
 import { EventEmitter } from 'events';
+import SerialPort from 'serialport';
 
+import { createIbusMessage, getHrDiffTime } from '../utils';
 import { Callback } from '../types';
+import { config } from '../config';
 import loggerSystem from '../logger';
-import { getHrDiffTime } from '../utils';
 
-import IbusProtocol from './IbusProtocol';
 import { IncommingMessage, OutgoingMessage } from './types';
+import IbusProtocol from './IbusProtocol';
 
 const logger = loggerSystem.child({ service: 'IbusInterface' });
 
@@ -19,15 +21,18 @@ class IbusInterface extends EventEmitter {
 
   constructor(device: string) {
     super();
+
     this.device = device;
     this.parser = new IbusProtocol();
     this.serialPort = new SerialPort(this.device, {
       autoOpen: false,
-      baudRate: 9600,
+      baudRate: config.iBusBaudRate,
       parity: 'even',
       stopBits: 1,
       dataBits: 8,
     });
+
+    autoBind(this);
   }
 
   private watchForEmptyBus(workerFn: (callback: Callback) => void) {
@@ -40,9 +45,9 @@ class IbusInterface extends EventEmitter {
     }
   }
 
-  private processWriteQueue(ready: Callback) {
-    if (this.queue.length <= 0) {
-      ready();
+  private processWriteQueue(callback: Callback) {
+    if (!this.queue.length) {
+      callback();
       return;
     }
 
@@ -60,7 +65,7 @@ class IbusInterface extends EventEmitter {
 
         this.serialPort.drain((_error) => {
           this.lastActivityTime = process.hrtime();
-          ready();
+          callback();
         });
       }
     });
@@ -72,7 +77,7 @@ class IbusInterface extends EventEmitter {
   }
 
   private onError(error: Error) {
-    logger.error('Error', error);
+    logger.error(error);
     this.shutdown(this.startup);
   }
 
@@ -91,7 +96,7 @@ class IbusInterface extends EventEmitter {
   }
 
   public sendMessage(message: OutgoingMessage) {
-    const dataBuf = IbusProtocol.createIbusMessage(message);
+    const dataBuf = createIbusMessage(message);
     logger.debug('Send message: ', dataBuf);
 
     if (this.queue.length > 1000) {
@@ -105,7 +110,7 @@ class IbusInterface extends EventEmitter {
   public startup() {
     this.serialPort.open((error) => {
       if (error) {
-        logger.error(error.message);
+        logger.error(error);
       } else {
         logger.info('Port Open.');
         this.serialPort.on('data', this.onData);
@@ -113,8 +118,9 @@ class IbusInterface extends EventEmitter {
 
         if (!this.parser) return;
 
-        this.parser.on('message', this.onMessage);
         this.serialPort.pipe(this.parser);
+        this.parser.on('message', this.onMessage);
+
         this.watchForEmptyBus(this.processWriteQueue);
       }
     });

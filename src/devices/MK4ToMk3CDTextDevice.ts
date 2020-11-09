@@ -1,5 +1,7 @@
+import autoBind from 'auto-bind';
+
 import { IbusInterface, IncommingMessage } from '../ibus';
-import GraphicsNavigationOutputDevice from './GraphicsNavigationOutputDevice';
+import { GraphicsNavigationOutputDevice } from './GraphicsNavigationOutputDevice';
 
 class MK4ToMk3CDTextDevice {
   private ibusInterface: IbusInterface;
@@ -17,6 +19,8 @@ class MK4ToMk3CDTextDevice {
     this.artist = Buffer.from('');
     this.title = Buffer.from('');
     this.album = Buffer.from('');
+
+    autoBind(this);
 
     this.ibusInterface.on('data', this.onData);
   }
@@ -58,4 +62,4 @@ class MK4ToMk3CDTextDevice {
   }
 }
 
-export default MK4ToMk3CDTextDevice;
+export { MK4ToMk3CDTextDevice };

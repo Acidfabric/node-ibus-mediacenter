@@ -1,3 +1,5 @@
+import autoBind from 'auto-bind';
+
 import { IbusInterface, IncommingMessage } from '../ibus';
 import loggerSystem from '../logger';
 import { messages } from '../constants';
@@ -15,6 +17,8 @@ class IbusDebuggerDevice {
     this.ibusInterface = ibusInterface;
     this.listenDeviceIds = listenDeviceIds;
     this.ibusInterface.on('data', this.onData);
+
+    autoBind(this);
   }
 
   private onData(data: IncommingMessage) {
@@ -63,4 +67,4 @@ class IbusDebuggerDevice {
   }
 }
 
-export default IbusDebuggerDevice;
+export { IbusDebuggerDevice };

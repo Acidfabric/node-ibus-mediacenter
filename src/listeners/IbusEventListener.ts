@@ -1,10 +1,12 @@
-import { IbusInterface, IncommingMessage } from '../ibus';
+import autoBind from 'auto-bind';
+
 import { compareify, isEq, repeat } from '../utils';
-import { RemoteControlClient } from '../types';
+import { IbusInterface, IncommingMessage } from '../ibus';
 import loggerSystem from '../logger';
+import { RemoteControlClient } from '../types';
 
 import { RemoteClients } from './types';
-import XbmcClient from '../clients/XbmcClient';
+import { XbmcClient } from '../clients';
 
 const logger = loggerSystem.child({ service: 'IbusEventListener' });
 
@@ -14,6 +16,9 @@ class IbusEventListener {
 
   constructor(ibusInterface: IbusInterface) {
     this.ibusInterface = ibusInterface;
+
+    autoBind(this);
+
     this.ibusInterface.on('data', this.onData);
   }
 
@@ -167,4 +172,4 @@ class IbusEventListener {
   }
 }
 
-export default IbusEventListener;
+export { IbusEventListener };

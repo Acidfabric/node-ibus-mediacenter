@@ -1,7 +1,8 @@
+import autoBind from 'auto-bind';
 import Xbmc from 'xbmc';
 
-import loggerSystem from '../logger';
 import { config } from '../config';
+import loggerSystem from '../logger';
 import { RemoteControlClient } from '../types/remoteControlClient';
 
 const logger = loggerSystem.child({ service: 'XbmcClient' });
@@ -10,6 +11,8 @@ class XbmcClient implements RemoteControlClient {
   private xbmcApi: any;
 
   constructor() {
+    autoBind(this);
+
     this.setupXbmc();
   }
 
@@ -80,4 +83,4 @@ class XbmcClient implements RemoteControlClient {
   }
 }
 
-export default XbmcClient;
+export { XbmcClient };
