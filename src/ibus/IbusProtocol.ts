@@ -27,18 +27,18 @@ class IbusProtocol extends Transform {
 
     this.isProcessing = true;
 
-    logger.debug('Processing: ', this.processId);
-    logger.debug('Current buffer: ', this.buffer);
-    logger.debug('Current chunk: ', chunk);
+    logger.debug(`Processing: ${this.processId}`);
+    logger.debug(`Current buffer: ${this.buffer}`);
+    logger.debug(`Current chunk: ${chunk}`);
 
     this.processId++;
     this.buffer = Buffer.concat([this.buffer, chunk]);
 
     const cchunk = this.buffer;
-    logger.debug('Concated chunk: ', cchunk);
+    logger.debug(`Concated chunk: ${cchunk}`);
 
     if (cchunk.length >= 5) {
-      logger.debug('Analyzing: ', cchunk);
+      logger.debug(`Analyzing: ${cchunk}`);
 
       const messages: IncommingMessage[] = [];
 
@@ -93,7 +93,7 @@ class IbusProtocol extends Transform {
 
       if (endOfLastMessage !== -1) {
         this.buffer = cchunk.slice(endOfLastMessage);
-        logger.debug('Sliced data: ', endOfLastMessage, this.buffer);
+        logger.debug(`Sliced data: ${endOfLastMessage} ${this.buffer}`);
       } else {
         if (this.buffer.length > 500) {
           logger.warning('Dropping some data..');
@@ -102,7 +102,7 @@ class IbusProtocol extends Transform {
       }
     }
 
-    logger.debug('Buffered messages size: ', this.buffer.length);
+    logger.debug(`Buffered messages size: ${this.buffer.length}`);
 
     this.isProcessing = false;
 

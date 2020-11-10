@@ -17,19 +17,13 @@ class XbmcClient implements RemoteControlClient {
   }
 
   private setupXbmc() {
-    const connection = new Xbmc.TCPConnection({
-      host: config.xbmcHost,
-      port: config.xbmcPort,
-      verbose: true,
-      username: config.xbmcUsername,
-      password: config.xbmcPassword,
-    });
+    const connection = new Xbmc.TCPConnection(config.xbmcConnection);
 
     this.xbmcApi = new Xbmc.XbmcApi({ silent: true });
     this.xbmcApi.setConnection(connection);
 
     this.xbmcApi.on('connection:data', (data: any) => {
-      logger.debug('Client data.', data);
+      logger.debug(`Client data. ${data}`);
     });
 
     this.xbmcApi.on('connection:open', () => {

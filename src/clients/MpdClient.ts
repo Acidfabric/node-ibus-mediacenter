@@ -10,10 +10,7 @@ class MpdClient {
   private client: any;
 
   constructor() {
-    this.client = connect({
-      port: config.mpdPort,
-      host: config.mpdHost,
-    });
+    this.client = connect(config.mpdConnection);
 
     autoBind(this);
 
@@ -31,7 +28,7 @@ class MpdClient {
     });
 
     this.client.on('system', (name: string) => {
-      logger.info('Client update', name);
+      logger.info(`Client update ${name}`);
     });
 
     this.client.on('system-player', () => {

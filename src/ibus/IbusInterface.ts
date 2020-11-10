@@ -2,7 +2,7 @@ import autoBind from 'auto-bind';
 import { EventEmitter } from 'events';
 import SerialPort from 'serialport';
 
-import { createIbusMessage, getHrDiffTime } from '../utils';
+import { createIbusMessage, timePassed } from '../utils';
 import { Callback } from '../types';
 import { config } from '../config';
 import loggerSystem from '../logger';
@@ -15,31 +15,25 @@ const logger = loggerSystem.child({ service: 'IbusInterface' });
 class IbusInterface extends EventEmitter {
   private serialPort: SerialPort;
   private parser: IbusProtocol | null;
-  private queue: Buffer[] = [];
+  private queue: Buffer[];
   private device: string;
-  private lastActivityTime = process.hrtime();
+  private lastActivityTime: [number, number];
 
   constructor(device: string) {
     super();
 
     this.device = device;
+    this.serialPort = new SerialPort(this.device, config.iBusConnection);
     this.parser = new IbusProtocol();
-    this.serialPort = new SerialPort(this.device, {
-      autoOpen: false,
-      baudRate: config.iBusBaudRate,
-      parity: 'even',
-      stopBits: 1,
-      dataBits: 8,
-    });
+    this.queue = [];
+    this.lastActivityTime = process.hrtime();
 
     autoBind(this);
   }
 
   private watchForEmptyBus(workerFn: (callback: Callback) => void) {
-    if (getHrDiffTime(this.lastActivityTime) >= 20) {
-      workerFn(() => {
-        setImmediate(this.watchForEmptyBus, workerFn);
-      });
+    if (timePassed(this.lastActivityTime) >= 20) {
+      workerFn(() => setImmediate(this.watchForEmptyBus, workerFn));
     } else {
       setImmediate(this.watchForEmptyBus, workerFn);
     }
@@ -55,13 +49,13 @@ class IbusInterface extends EventEmitter {
 
     if (!dataBuf) return;
 
-    logger.debug('Write queue length: ', this.queue.length);
+    logger.debug(`Write queue length: ${this.queue.length}`);
 
     this.serialPort.write(dataBuf, (error, resp) => {
       if (error) {
-        logger.error('Failed to write', error);
+        logger.error(`Failed to write ${error}`);
       } else {
-        logger.info('Wrote to Device', dataBuf, resp);
+        logger.info(`Wrote to Device: ${dataBuf} ${resp}`);
 
         this.serialPort.drain((_error) => {
           this.lastActivityTime = process.hrtime();
@@ -71,8 +65,8 @@ class IbusInterface extends EventEmitter {
     });
   }
 
-  private onData(data: any) {
-    logger.debug('Data on port: ', data);
+  private onData(data: number) {
+    logger.debug(`Data on port: ${data}`);
     this.lastActivityTime = process.hrtime();
   }
 
@@ -81,26 +75,18 @@ class IbusInterface extends EventEmitter {
     this.shutdown(this.startup);
   }
 
-  private onMessage(message: IncommingMessage) {
-    logger.debug(
-      'Raw Message: ',
-      message.src,
-      message.len,
-      message.dst,
-      message.msg,
-      '[' + message.msg.toString('ascii') + ']',
-      message.crc,
-    );
+  private onMessage(msg: IncommingMessage) {
+    logger.debug(`Raw Message: ${msg.src} ${msg.len} ${msg.dst} ${msg.msg} [${msg.msg.toString('ascii')}] ${msg.crc}`);
 
-    this.emit('data', message);
+    this.emit('data', msg);
   }
 
   public sendMessage(message: OutgoingMessage) {
     const dataBuf = createIbusMessage(message);
-    logger.debug('Send message: ', dataBuf);
+    logger.debug(`Send message: ${dataBuf}`);
 
     if (this.queue.length > 1000) {
-      logger.warning('Queue too large, dropping message..', dataBuf);
+      logger.warning(`Queue too large, dropping message.. ${dataBuf}`);
       return;
     }
 

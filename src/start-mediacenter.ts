@@ -4,23 +4,17 @@
 // import MpdClient from './clients/MpdClient';
 // import KeyboardEventListener from './listeners/KeyboardEventListener';
 
-import { IbusEventListener } from './listeners';
-import { IbusInterface } from './ibus';
+import { config } from './config';
+// import { IbusEventListener } from './listeners';
+import { IbusInterface, IbusReader } from './ibus';
 import loggerSystem from './logger';
-import { XbmcClient } from './clients';
+// import { XbmcClient } from './clients';
 
 const logger = loggerSystem.child({ service: 'MediaCenter' });
 
-const device = '/dev/tty.Bluetooth-Incoming-Port'; // bluetooth
-
-const ibusInterface = new IbusInterface(device);
-
-process.on('SIGINT', onSignalInt);
-process.on('SIGTERM', onSignalTerm);
-process.on('uncaughtException', onUncaughtException);
-
 function onSignalInt() {
   shutdown(() => {
+    logger.info('Gracefully shutting down from SIGINT (Ctrl-C)');
     process.exit(1);
   });
 }
@@ -52,6 +46,12 @@ function onUncaughtException(err: Error) {
   }, 5000);
 }
 
+process.on('SIGINT', onSignalInt);
+process.on('SIGTERM', onSignalTerm);
+process.on('uncaughtException', onUncaughtException);
+
+const ibusInterface = new IbusInterface(config.device);
+
 function shutdown(successFn: () => void) {
   ibusInterface.shutdown(() => {
     successFn();
@@ -60,6 +60,7 @@ function shutdown(successFn: () => void) {
 
 function startup() {
   ibusInterface.startup();
+  const ibusReader = new IbusReader(ibusInterface);
 
   // Mpd Client
   // const mpc = new MpdClient();
@@ -73,15 +74,15 @@ function startup() {
   // Ibus debugger
   // const ibusDebuggerDevice = new IbusDebuggerDevice(ibusInterface);
 
-  const xbmcc = new XbmcClient();
+  // const xbmcc = new XbmcClient();
 
   // Keyboard Client
   // const keyboardEventListener = new KeyboardEventListener();
   // keyboardEventListener.setRemoteControlClient('xbmc', xbmcc);
   // keyboardEventListener.setRemoteControlClient('ibus', ibusDebuggerDevice);
 
-  const ibusEventClient = new IbusEventListener(ibusInterface);
-  ibusEventClient.setRemoteControlClient('xbmc', xbmcc);
+  // const ibusEventClient = new IbusEventListener(ibusInterface);
+  // ibusEventClient.setRemoteControlClient('xbmc', xbmcc);
 }
 
 export { startup };

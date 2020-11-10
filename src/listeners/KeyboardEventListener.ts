@@ -33,7 +33,7 @@ class KeyboardEventListener {
     keypress(process.stdin);
 
     process.stdin.on('keypress', (ch, key) => {
-      logger.debug('got "keypress"', ch, key);
+      logger.debug(`got "keypress" ${ch} ${key}`);
       if (!(key && key.name)) {
         key = {
           name: ch,

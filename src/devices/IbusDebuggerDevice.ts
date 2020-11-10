@@ -30,7 +30,7 @@ class IbusDebuggerDevice {
         msg += ', 0x' + (data.msg[index] < 0x10 ? '0' : '') + data.msg[index].toString(16);
       });
 
-      logger.debug('debug message', msg);
+      logger.debug(`debug message ${msg}`);
     }
   }
 

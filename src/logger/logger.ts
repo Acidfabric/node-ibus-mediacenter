@@ -13,10 +13,7 @@ const logger = winston.createLogger({
         winston.format.timestamp(),
         winston.format.simple(),
         winston.format.printf((msg) =>
-          colorizer.colorize(
-            msg.level,
-            `[${msg.level} ${parseDateTime(msg.timestamp)}] ${msg.service}: ${msg.message}`,
-          ),
+          colorizer.colorize(msg.level, `${msg.service} [${msg.level} ${parseDateTime(msg.timestamp)}] ${msg.message}`),
         ),
       ),
     }),

@@ -1,4 +1,4 @@
-export function getHrDiffTime(time: [number, number]) {
+export function timePassed(time: [number, number]) {
   const ts = process.hrtime(time);
   return ts[0] * 1000 + ts[1] / 1000000;
 }
