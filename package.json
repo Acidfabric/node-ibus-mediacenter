@@ -6,12 +6,18 @@
   "files": [
     "/dist"
   ],
+  "engines": {
+    "node": ">=12.0.0",
+    "npm": ">=6.0.0"
+  },
   "scripts": {
     "start": "ts-node index.ts",
     "prepare": "yarn build",
     "build:lib": "rollup -c",
     "build:types": "tsc -b tsconfig.build.json",
-    "build": "rm -rf ./dist && yarn build:lib && yarn build:types"
+    "build": "rm -rf ./dist && yarn build:lib && yarn build:types",
+    "listports": "ts-node src/helpers/listPorts.ts",
+    "sniff": "ts-node src/helpers/ibusSniffer.ts"
   },
   "dependencies": {
     "auto-bind": "^4.0.0",

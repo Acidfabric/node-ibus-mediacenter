@@ -41,6 +41,7 @@ class IbusReader {
     logger.info(`To: ${this.getDeviceName(data.dst)}`);
     logger.info(`Message: ${data.msg}`);
     logger.info('------------------------------------');
+    logger.info('\n');
   }
 }
 

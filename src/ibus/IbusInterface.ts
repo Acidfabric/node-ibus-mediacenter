@@ -2,9 +2,9 @@ import autoBind from 'auto-bind';
 import { EventEmitter } from 'events';
 import SerialPort from 'serialport';
 
+import { config, Encoding } from '../constants';
 import { createIbusMessage, timePassed } from '../utils';
 import { Callback } from '../types';
-import { config } from '../config';
 import loggerSystem from '../logger';
 
 import { IncommingMessage, OutgoingMessage } from './types';
@@ -16,14 +16,12 @@ class IbusInterface extends EventEmitter {
   private serialPort: SerialPort;
   private parser: IbusProtocol | null;
   private queue: Buffer[];
-  private device: string;
   private lastActivityTime: [number, number];
 
-  constructor(device: string) {
+  constructor() {
     super();
 
-    this.device = device;
-    this.serialPort = new SerialPort(this.device, config.iBusConnection);
+    this.serialPort = new SerialPort(config.device, config.iBusConnection);
     this.parser = new IbusProtocol();
     this.queue = [];
     this.lastActivityTime = process.hrtime();
@@ -65,8 +63,8 @@ class IbusInterface extends EventEmitter {
     });
   }
 
-  private onData(data: number) {
-    logger.debug(`Data on port: ${data}`);
+  private onData(data: Buffer) {
+    logger.debug(`Data on port: ${data.toString(Encoding.Hex)}`);
     this.lastActivityTime = process.hrtime();
   }
 
@@ -76,7 +74,9 @@ class IbusInterface extends EventEmitter {
   }
 
   private onMessage(msg: IncommingMessage) {
-    logger.debug(`Raw Message: ${msg.src} ${msg.len} ${msg.dst} ${msg.msg} [${msg.msg.toString('ascii')}] ${msg.crc}`);
+    logger.debug(
+      `Raw Message: ${msg.src} ${msg.len} ${msg.dst} ${msg.msg} [${msg.msg.toString(Encoding.Ascii)}] ${msg.crc}`,
+    );
 
     this.emit('data', msg);
   }
@@ -97,18 +97,19 @@ class IbusInterface extends EventEmitter {
     this.serialPort.open((error) => {
       if (error) {
         logger.error(error);
-      } else {
-        logger.info('Port Open.');
-        this.serialPort.on('data', this.onData);
-        this.serialPort.on('error', this.onError);
-
-        if (!this.parser) return;
-
-        this.serialPort.pipe(this.parser);
-        this.parser.on('message', this.onMessage);
-
-        this.watchForEmptyBus(this.processWriteQueue);
+        return;
       }
+
+      logger.info('Port Open.');
+      this.serialPort.on('data', this.onData);
+      this.serialPort.on('error', this.onError);
+
+      if (!this.parser) return;
+
+      this.serialPort.pipe(this.parser);
+      this.parser.on('message', this.onMessage);
+
+      this.watchForEmptyBus(this.processWriteQueue);
     });
   }
 

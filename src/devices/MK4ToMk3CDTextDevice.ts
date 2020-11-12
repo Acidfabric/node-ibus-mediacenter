@@ -1,6 +1,8 @@
 import autoBind from 'auto-bind';
 
 import { IbusInterface, IncommingMessage } from '../ibus';
+import { Encoding } from '../constants';
+
 import { GraphicsNavigationOutputDevice } from './GraphicsNavigationOutputDevice';
 
 class MK4ToMk3CDTextDevice {
@@ -33,10 +35,10 @@ class MK4ToMk3CDTextDevice {
     if (data.dst === this.sourceId) {
       if (data.msg.toString() === dataFlush) {
         this.navOutput.setOption(0, '--NowPlaying--');
-        this.navOutput.setOption(1, this.artist.toString('ascii'));
-        this.navOutput.setOption(2, this.title.toString('ascii'));
+        this.navOutput.setOption(1, this.artist.toString(Encoding.Ascii));
+        this.navOutput.setOption(2, this.title.toString(Encoding.Ascii));
         this.navOutput.setOption(3, '---------------');
-        this.navOutput.setOption(4, this.album.toString('ascii'));
+        this.navOutput.setOption(4, this.album.toString(Encoding.Ascii));
         this.navOutput.setOption(5, '');
         this.navOutput.setOption(6, '');
         this.navOutput.setOption(7, '');

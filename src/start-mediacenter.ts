@@ -1,12 +1,11 @@
 // import MK4ToMk3CDTextDevice from './devices/MK4ToMk3CDTextDevice';
-// import GraphicsNavigationOutputDevice from './devices/GraphicsNavigationOutputDevice';
+import { GraphicsNavigationOutputDevice, MK4ToMk3CDTextDevice } from './devices';
 // import IbusDebuggerDevice from './devices/IbusDebuggerDevice';
 // import MpdClient from './clients/MpdClient';
 // import KeyboardEventListener from './listeners/KeyboardEventListener';
 
-import { config } from './config';
 // import { IbusEventListener } from './listeners';
-import { IbusInterface, IbusReader } from './ibus';
+import { IbusInterface } from './ibus';
 import loggerSystem from './logger';
 // import { XbmcClient } from './clients';
 
@@ -27,7 +26,7 @@ function onSignalTerm() {
 let isShuttingDown = false;
 
 function onUncaughtException(err: Error) {
-  logger.error('Caught: ', err);
+  logger.error(`Caught: ${err}`);
 
   if (isShuttingDown) {
     logger.info('Waiting for previous restart..');
@@ -50,7 +49,7 @@ process.on('SIGINT', onSignalInt);
 process.on('SIGTERM', onSignalTerm);
 process.on('uncaughtException', onUncaughtException);
 
-const ibusInterface = new IbusInterface(config.device);
+const ibusInterface = new IbusInterface();
 
 function shutdown(successFn: () => void) {
   ibusInterface.shutdown(() => {
@@ -60,16 +59,17 @@ function shutdown(successFn: () => void) {
 
 function startup() {
   ibusInterface.startup();
-  const ibusReader = new IbusReader(ibusInterface);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // const ibusReader = new IbusReader(ibusInterface);
 
   // Mpd Client
   // const mpc = new MpdClient();
 
   // Graphics Navidagtion Device pirate
-  //var navOutput = new GraphicsNavigationOutputDevice(ibusInterface);
+  const navOutput = new GraphicsNavigationOutputDevice(ibusInterface);
 
   // Display Mk4 CD-text as Mk3 Options
-  // var mkTextBridge = new MK4ToMk3CDTextDevice(ibusInterface, navOutput);
+  new MK4ToMk3CDTextDevice(ibusInterface, navOutput);
 
   // Ibus debugger
   // const ibusDebuggerDevice = new IbusDebuggerDevice(ibusInterface);

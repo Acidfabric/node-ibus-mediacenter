@@ -18,3 +18,8 @@ export function parseDateTime(dateString: string) {
   const date = new Date(dateString);
   return new Intl.DateTimeFormat('default', options).format(date);
 }
+
+export function getDateTimeNow() {
+  const date = new Date();
+  return `${date.getFullYear()}-${date.getMonth()}-${date.getDay()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
+}

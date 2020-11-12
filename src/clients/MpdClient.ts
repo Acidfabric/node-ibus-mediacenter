@@ -1,12 +1,13 @@
 import { cmd, connect } from 'mpd';
 import autoBind from 'auto-bind';
 
-import { config } from '../config';
+import { config } from '../constants';
 import loggerSystem from '../logger';
 
 const logger = loggerSystem.child({ service: 'MpdClient' });
 
 class MpdClient {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private client: any;
 
   constructor() {

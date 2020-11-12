@@ -1,6 +1,6 @@
 export const config = {
-  // device: '/dev/tty.Bluetooth-Incoming-Port',
-  device: '/dev/ttys004',
+  device: '/dev/ttys006',
+  rawDirectory: '/raw/some',
   xbmcConnection: {
     host: '127.0.0.1',
     port: 9090,

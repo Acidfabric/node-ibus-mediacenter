@@ -1,13 +1,14 @@
 import autoBind from 'auto-bind';
 import Xbmc from 'xbmc';
 
-import { config } from '../config';
+import { config } from '../constants';
 import loggerSystem from '../logger';
 import { RemoteControlClient } from '../types/remoteControlClient';
 
 const logger = loggerSystem.child({ service: 'XbmcClient' });
 
 class XbmcClient implements RemoteControlClient {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private xbmcApi: any;
 
   constructor() {
@@ -22,6 +23,7 @@ class XbmcClient implements RemoteControlClient {
     this.xbmcApi = new Xbmc.XbmcApi({ silent: true });
     this.xbmcApi.setConnection(connection);
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     this.xbmcApi.on('connection:data', (data: any) => {
       logger.debug(`Client data. ${data}`);
     });

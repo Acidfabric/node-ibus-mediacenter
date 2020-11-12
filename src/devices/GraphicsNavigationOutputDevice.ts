@@ -3,12 +3,16 @@ import autoBind from 'auto-bind';
 import { interfaces, messages } from '../constants';
 import { getPaddedLenBuf } from '../utils';
 import { IbusInterface } from '../ibus';
+import logginSystem from '../logger';
+
+const logger = logginSystem.child({ service: 'BordMonitorOutput' });
 
 class GraphicsNavigationOutputDevice {
-  private deviceName = 'BordMonitorOutput';
   private ibusInterface: IbusInterface;
 
   constructor(ibusInterface: IbusInterface) {
+    logger.debug('Start.');
+
     this.ibusInterface = ibusInterface;
 
     autoBind(this);

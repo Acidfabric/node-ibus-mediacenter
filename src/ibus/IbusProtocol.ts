@@ -1,6 +1,7 @@
 import { Transform, TransformCallback, TransformOptions } from 'stream';
 import autoBind from 'auto-bind';
 
+import { Encoding } from '../constants';
 import loggerSystem from '../logger';
 
 import { IncommingMessage } from './types';
@@ -22,64 +23,64 @@ class IbusProtocol extends Transform {
     autoBind(this);
   }
 
-  _transform(chunk: Uint8Array, _encoding: BufferEncoding, cb: TransformCallback) {
+  _transform(chunk: Buffer, _encoding: BufferEncoding, cb: TransformCallback) {
     if (this.isProcessing === true) logger.error('Error. This _transform function should NOT be running..');
 
     this.isProcessing = true;
 
     logger.debug(`Processing: ${this.processId}`);
-    logger.debug(`Current buffer: ${this.buffer}`);
-    logger.debug(`Current chunk: ${chunk}`);
+    logger.debug(`Current buffer: ${this.buffer.toString(Encoding.Ascii)}`);
+    logger.debug(`Current chunk: ${chunk.toString(Encoding.Hex)}`);
 
     this.processId++;
     this.buffer = Buffer.concat([this.buffer, chunk]);
 
     const cchunk = this.buffer;
-    logger.debug(`Concated chunk: ${cchunk}`);
+    logger.debug(`Concated chunk: ${cchunk.toString(Encoding.Hex)}`);
 
     if (cchunk.length >= 5) {
-      logger.debug(`Analyzing: ${cchunk}`);
+      logger.debug(`Analyzing: ${cchunk.toString(Encoding.Hex)}`);
 
       const messages: IncommingMessage[] = [];
 
       let endOfLastMessage = -1;
 
-      let mSrc: number;
-      let mLen: number;
-      let mDst: number;
-      let mMsg: Buffer;
-      let mCrc: number;
+      let packetSource: number;
+      let packetLength: number;
+      let packetDestination: number;
+      let packaetMessage: Buffer;
+      let packetChecksum: number;
 
       for (let i = 0; i < cchunk.length - 5; i++) {
-        mSrc = cchunk[i + 0];
-        mLen = cchunk[i + 1];
-        mDst = cchunk[i + 2];
+        packetSource = cchunk[i + 0];
+        packetLength = cchunk[i + 1];
+        packetDestination = cchunk[i + 2];
 
-        if (cchunk.length >= i + 2 + mLen) {
-          mMsg = cchunk.slice(i + 3, i + 3 + mLen - 2);
-          mCrc = cchunk[i + 2 + mLen - 1];
+        if (cchunk.length >= i + 2 + packetLength) {
+          packaetMessage = cchunk.slice(i + 3, i + 3 + packetLength - 2);
+          packetChecksum = cchunk[i + 2 + packetLength - 1];
 
           let crc = 0x00;
 
-          crc = crc ^ mSrc;
-          crc = crc ^ mLen;
-          crc = crc ^ mDst;
+          crc = crc ^ packetSource;
+          crc = crc ^ packetLength;
+          crc = crc ^ packetDestination;
 
-          for (let j = 0; j < mMsg.length; j++) {
-            crc = crc ^ mMsg[j];
+          for (let j = 0; j < packaetMessage.length; j++) {
+            crc = crc ^ packaetMessage[j];
           }
 
-          if (crc === mCrc) {
+          if (crc === packetChecksum) {
             messages.push({
               id: Date.now(),
-              src: mSrc.toString(16),
-              len: mLen.toString(16),
-              dst: mDst.toString(16),
-              msg: mMsg,
-              crc: mCrc.toString(16),
+              src: packetSource.toString(16),
+              len: packetLength.toString(16),
+              dst: packetDestination.toString(16),
+              msg: packaetMessage,
+              crc: packetChecksum.toString(16),
             });
 
-            endOfLastMessage = i + 2 + mLen;
+            endOfLastMessage = i + 2 + packetLength;
             i = endOfLastMessage - 1;
           }
         }
