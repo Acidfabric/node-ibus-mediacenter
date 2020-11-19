@@ -1,18 +1,17 @@
 import autoBind from 'auto-bind';
 
 import { IbusInterface, IncommingMessage } from '../ibus';
-import loggerSystem from '../logger';
+import { Base } from '../base';
 import { messages } from '../constants';
 
-const logger = loggerSystem.child({ service: 'IbusDebuggerListener' });
-
-class IbusDebuggerDevice {
+class IbusDebuggerDevice extends Base {
   ibusInterface: IbusInterface;
-  deviceName = 'Ibus Debugger';
   listenDeviceIds?: string[];
 
   constructor(ibusInterface: IbusInterface, listenDeviceIds?: string[]) {
-    logger.debug('Starting up..');
+    super('IbusDebugger');
+
+    this.logger.debug('Starting up..');
 
     this.ibusInterface = ibusInterface;
     this.listenDeviceIds = listenDeviceIds;
@@ -22,7 +21,7 @@ class IbusDebuggerDevice {
   }
 
   private onData(data: IncommingMessage) {
-    logger.debug(data);
+    this.logger.debug(data);
     if (this.listenDeviceIds?.find((val) => val === data.dst)) {
       let msg = '';
 
@@ -30,7 +29,7 @@ class IbusDebuggerDevice {
         msg += ', 0x' + (data.msg[index] < 0x10 ? '0' : '') + data.msg[index].toString(16);
       });
 
-      logger.debug(`debug message ${msg}`);
+      this.logger.debug(`debug message ${msg}`);
     }
   }
 

@@ -1,10 +1,11 @@
+import { Encoding } from '../constants';
 import { OutgoingMessage } from '../ibus';
 
 export function getPaddedLenBuf(text: string, len: number) {
   const outputTextBuf = Buffer.alloc(len);
   outputTextBuf.fill(0x20);
 
-  const textBuf = Buffer.from(text, 'utf-8').slice(0, len);
+  const textBuf = Buffer.from(text, Encoding.Utf8).slice(0, len);
   textBuf.copy(outputTextBuf);
 
   return outputTextBuf;

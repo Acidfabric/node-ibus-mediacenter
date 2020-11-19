@@ -32,9 +32,10 @@ class IbusInterface extends EventEmitter {
   private watchForEmptyBus(workerFn: (callback: Callback) => void) {
     if (timePassed(this.lastActivityTime) >= 20) {
       workerFn(() => setImmediate(this.watchForEmptyBus, workerFn));
-    } else {
-      setImmediate(this.watchForEmptyBus, workerFn);
+      return;
     }
+
+    setImmediate(this.watchForEmptyBus, workerFn);
   }
 
   private processWriteQueue(callback: Callback) {
@@ -52,14 +53,20 @@ class IbusInterface extends EventEmitter {
     this.serialPort.write(dataBuf, (error, resp) => {
       if (error) {
         logger.error(`Failed to write ${error}`);
-      } else {
-        logger.info(`Wrote to Device: ${dataBuf} ${resp}`);
-
-        this.serialPort.drain((_error) => {
-          this.lastActivityTime = process.hrtime();
-          callback();
-        });
+        return;
       }
+
+      logger.info(`Wrote to Device: ${dataBuf.toString(Encoding.Hex)} ${resp}`);
+
+      this.serialPort.drain((error) => {
+        if (error) {
+          logger.error(`Failed to drain ${error}`);
+          return;
+        }
+
+        this.lastActivityTime = process.hrtime();
+        callback();
+      });
     });
   }
 

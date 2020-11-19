@@ -1,13 +1,8 @@
-// import MK4ToMk3CDTextDevice from './devices/MK4ToMk3CDTextDevice';
-import { GraphicsNavigationOutputDevice, MK4ToMk3CDTextDevice } from './devices';
-// import IbusDebuggerDevice from './devices/IbusDebuggerDevice';
-// import MpdClient from './clients/MpdClient';
-// import KeyboardEventListener from './listeners/KeyboardEventListener';
-
-// import { IbusEventListener } from './listeners';
+import { GraphicsNavigationOutputDevice, IbusDebuggerDevice, MK4ToMk3CDTextDevice } from './devices';
+import { IbusEventListener, KeyboardEventListener } from './listeners';
+import { BluetoothClient } from './clients';
 import { IbusInterface } from './ibus';
 import loggerSystem from './logger';
-// import { XbmcClient } from './clients';
 
 const logger = loggerSystem.child({ service: 'MediaCenter' });
 
@@ -59,30 +54,18 @@ function shutdown(successFn: () => void) {
 
 function startup() {
   ibusInterface.startup();
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   // const ibusReader = new IbusReader(ibusInterface);
 
-  // Mpd Client
-  // const mpc = new MpdClient();
-
-  // Graphics Navidagtion Device pirate
   const navOutput = new GraphicsNavigationOutputDevice(ibusInterface);
-
-  // Display Mk4 CD-text as Mk3 Options
+  const bluetoothDevice = new BluetoothClient(navOutput);
   new MK4ToMk3CDTextDevice(ibusInterface, navOutput);
 
-  // Ibus debugger
   // const ibusDebuggerDevice = new IbusDebuggerDevice(ibusInterface);
+  // new KeyboardEventListener('ibus', ibusDebuggerDevice);
+  new KeyboardEventListener('phone', bluetoothDevice);
 
-  // const xbmcc = new XbmcClient();
-
-  // Keyboard Client
-  // const keyboardEventListener = new KeyboardEventListener();
-  // keyboardEventListener.setRemoteControlClient('xbmc', xbmcc);
-  // keyboardEventListener.setRemoteControlClient('ibus', ibusDebuggerDevice);
-
-  // const ibusEventClient = new IbusEventListener(ibusInterface);
-  // ibusEventClient.setRemoteControlClient('xbmc', xbmcc);
+  const ibusEventClient = new IbusEventListener(ibusInterface);
+  ibusEventClient.setRemoteControlClient('phone', bluetoothDevice);
 }
 
 export { startup };

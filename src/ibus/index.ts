@@ -1,3 +1,3 @@
 export * from './IbusInterface';
-export * from './ibusReader';
+export * from './IbusReader';
 export * from './types';

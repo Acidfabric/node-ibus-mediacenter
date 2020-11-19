@@ -1,5 +1,5 @@
 export const config = {
-  device: '/dev/ttys006',
+  device: '/dev/ttys002',
   rawDirectory: '/raw/some',
   xbmcConnection: {
     host: '127.0.0.1',

@@ -1,16 +1,16 @@
 import { cmd, connect } from 'mpd';
 import autoBind from 'auto-bind';
 
+import { Base } from '../base';
 import { config } from '../constants';
-import loggerSystem from '../logger';
 
-const logger = loggerSystem.child({ service: 'MpdClient' });
-
-class MpdClient {
+class MpdClient extends Base {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private client: any;
 
   constructor() {
+    super('MpdClient');
+
     this.client = connect(config.mpdConnection);
 
     autoBind(this);
@@ -19,17 +19,17 @@ class MpdClient {
   }
 
   private callback(err: Error, msg: string) {
-    if (err) logger.error(msg);
-    logger.info(msg);
+    if (err) this.logger.error(msg);
+    this.logger.info(msg);
   }
 
   private setupClient() {
-    this.client.on('ready', function () {
-      logger.info('Client ready.');
+    this.client.on('ready', () => {
+      this.logger.info('Client ready.');
     });
 
     this.client.on('system', (name: string) => {
-      logger.info(`Client update ${name}`);
+      this.logger.info(`Client update ${name}`);
     });
 
     this.client.on('system-player', () => {

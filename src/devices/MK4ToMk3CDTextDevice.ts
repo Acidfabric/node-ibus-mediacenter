@@ -28,9 +28,9 @@ class MK4ToMk3CDTextDevice {
   }
 
   private onData(data: IncommingMessage) {
+    const intro = data.msg.slice(0, 3).toString();
     const dataInfo = Buffer.from([0xa5, 0x63, 0x01]).toString();
     const dataFlush = Buffer.from([0xa5, 0x63, 0x00, 0x00]).toString();
-    const intro = data.msg.slice(0, 3).toString();
 
     if (data.dst === this.sourceId) {
       if (data.msg.toString() === dataFlush) {

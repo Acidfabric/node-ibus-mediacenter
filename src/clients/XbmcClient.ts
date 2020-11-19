@@ -1,17 +1,17 @@
 import autoBind from 'auto-bind';
 import Xbmc from 'xbmc';
 
+import { Base } from '../base';
 import { config } from '../constants';
-import loggerSystem from '../logger';
 import { RemoteControlClient } from '../types/remoteControlClient';
 
-const logger = loggerSystem.child({ service: 'XbmcClient' });
-
-class XbmcClient implements RemoteControlClient {
+class XbmcClient extends Base implements RemoteControlClient {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private xbmcApi: any;
 
   constructor() {
+    super('XbmcClient');
+
     autoBind(this);
 
     this.setupXbmc();
@@ -25,19 +25,19 @@ class XbmcClient implements RemoteControlClient {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     this.xbmcApi.on('connection:data', (data: any) => {
-      logger.debug(`Client data. ${data}`);
+      this.logger.debug(`Client data. ${data}`);
     });
 
     this.xbmcApi.on('connection:open', () => {
-      logger.debug('Client connection open.');
+      this.logger.debug('Client connection open.');
     });
 
     this.xbmcApi.on('connection:close', () => {
-      logger.debug('Client connection closing.');
+      this.logger.debug('Client connection closing.');
     });
 
     this.xbmcApi.on('error', (error: Error) => {
-      logger.error(error);
+      this.logger.error(error);
     });
   }
 
@@ -46,7 +46,6 @@ class XbmcClient implements RemoteControlClient {
   }
 
   public next() {
-    logger.debug('Sending next');
     this.xbmcApi.input.ExecuteAction('skipnext');
   }
 

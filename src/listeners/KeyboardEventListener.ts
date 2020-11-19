@@ -1,118 +1,85 @@
 import autoBind from 'auto-bind';
-import keypress from 'keypress';
+import readline from 'readline';
 
+import { Base } from '../base';
 import { IbusDebuggerDevice } from '../devices';
-import loggerSystem from '../logger';
 import { RemoteControlClient } from '../types';
 import { XbmcClient } from '../clients';
 
 import { RemoteClients } from './types';
 
-const logger = loggerSystem.child({ service: 'KeyboardEventListener' });
-
-class KeyboardEventListener {
+class KeyboardEventListener extends Base {
+  private key: string;
   private remoteControlClient: RemoteClients = {};
-  private callback?: () => void;
 
-  constructor(callback?: () => void) {
-    this.callback = callback;
+  constructor(key: string, remoteControlClient: RemoteControlClient) {
+    super('KeyboardEventListener');
+
+    this.key = key;
+    this.remoteControlClient[key] = remoteControlClient;
 
     autoBind(this);
 
     this.setupKeyboardListiner();
   }
 
-  public setRemoteControlClient(key: string, remoteControlClient: RemoteControlClient) {
-    this.remoteControlClient[key] = remoteControlClient;
-  }
-
   private setupKeyboardListiner() {
-    logger.info('Starting up..');
+    this.logger.info('Starting up..');
 
-    // make `process.stdin` begin emitting "keypress" events
-    keypress(process.stdin);
+    readline.emitKeypressEvents(process.stdin);
 
-    process.stdin.on('keypress', (ch, key) => {
-      logger.debug(`got "keypress" ${ch} ${key}`);
-      if (!(key && key.name)) {
-        key = {
-          name: ch,
-        };
+    process.stdin.on('keypress', (str, key) => {
+      this.logger.debug(`got "keypress" ${str} ${JSON.stringify(key)}`);
+
+      if (!key?.name) key = { name: str };
+
+      if (key.ctrl && key.name == 'c') {
+        process.emit('SIGINT', 'SIGINT');
       }
 
-      if (key && key.ctrl && key.name == 'c') {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        process.emit('SIGINT');
-      }
-
-      if (key && key.ctrl && key.name == 'z') {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        process.emit('SIGTERM');
+      if (key.ctrl && key.name == 'z') {
+        process.emit('SIGTERM', 'SIGTERM');
       }
 
       if (key.name === 'w') {
-        this.remoteControlClient['ibus'].up();
+        this.remoteControlClient[this.key].up();
       }
 
       if (key.name === 'a') {
-        this.remoteControlClient['ibus'].left();
+        this.remoteControlClient[this.key].left();
       }
 
       if (key.name === 's') {
-        this.remoteControlClient['ibus'].down();
+        this.remoteControlClient[this.key].down();
       }
 
       if (key.name === 'd') {
-        this.remoteControlClient['ibus'].right();
+        this.remoteControlClient[this.key].right();
       }
 
       if (key.name === 'q') {
-        this.remoteControlClient['ibus'].back();
+        this.remoteControlClient[this.key].back();
       }
 
       if (key.name === 'e') {
-        this.remoteControlClient['ibus'].select();
+        this.remoteControlClient[this.key].select();
       }
 
       if (key.name === '[') {
-        (this.remoteControlClient['ibus'] as IbusDebuggerDevice).srl();
+        (this.remoteControlClient[this.key] as IbusDebuggerDevice).srl();
       }
 
       if (key.name === ']') {
-        (this.remoteControlClient['ibus'] as IbusDebuggerDevice).srr();
+        (this.remoteControlClient[this.key] as IbusDebuggerDevice).srr();
       }
 
-      if (key.name === 'up') {
-        this.remoteControlClient['xbmc'].up();
-      }
-      if (key.name === 'down') {
-        this.remoteControlClient['xbmc'].down();
-      }
-      if (key.name === 'left') {
-        this.remoteControlClient['xbmc'].left();
-      }
-      if (key.name === 'right') {
-        this.remoteControlClient['xbmc'].right();
-      }
-      if (key.name === 'return') {
-        this.remoteControlClient['xbmc'].select();
-      }
-      if (key.name === 'escape') {
-        this.remoteControlClient['xbmc'].back();
-      }
       if (key.name === 'i') {
-        (this.remoteControlClient['xbmc'] as XbmcClient).contextMenu();
+        if (this.key === 'xbmc') (this.remoteControlClient['xbmc'] as XbmcClient).contextMenu();
       }
     });
 
     process.stdin.setRawMode(true);
     process.stdin.resume();
-
-    if (this.callback) {
-      this.callback();
-    }
   }
 }
 

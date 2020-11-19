@@ -29,45 +29,36 @@ class IbusProtocol extends Transform {
     this.isProcessing = true;
 
     logger.debug(`Processing: ${this.processId}`);
-    logger.debug(`Current buffer: ${this.buffer.toString(Encoding.Ascii)}`);
+    logger.debug(`Current buffer: ${this.buffer.toString(Encoding.Hex)}`);
     logger.debug(`Current chunk: ${chunk.toString(Encoding.Hex)}`);
 
     this.processId++;
     this.buffer = Buffer.concat([this.buffer, chunk]);
+    logger.debug(`Buffer concatinated with chunk: ${this.buffer.toString(Encoding.Hex)}`);
 
-    const cchunk = this.buffer;
-    logger.debug(`Concated chunk: ${cchunk.toString(Encoding.Hex)}`);
+    const copyChunk = this.buffer;
 
-    if (cchunk.length >= 5) {
-      logger.debug(`Analyzing: ${cchunk.toString(Encoding.Hex)}`);
-
+    if (copyChunk.length >= 5) {
       const messages: IncommingMessage[] = [];
 
       let endOfLastMessage = -1;
 
-      let packetSource: number;
-      let packetLength: number;
-      let packetDestination: number;
-      let packaetMessage: Buffer;
-      let packetChecksum: number;
+      for (let i = 0; i < copyChunk.length - 5; i++) {
+        const packetSource = copyChunk[i];
+        const packetLength = copyChunk[i + 1];
+        const packetDestination = copyChunk[i + 2];
+        const packetMessage = copyChunk.slice(i + 3, i + 3 + packetLength - 2);
+        const lastChunkItem = i + 2 + packetLength;
+        const packetChecksum = copyChunk[lastChunkItem - 1];
+        let crc = 0x00;
 
-      for (let i = 0; i < cchunk.length - 5; i++) {
-        packetSource = cchunk[i + 0];
-        packetLength = cchunk[i + 1];
-        packetDestination = cchunk[i + 2];
-
-        if (cchunk.length >= i + 2 + packetLength) {
-          packaetMessage = cchunk.slice(i + 3, i + 3 + packetLength - 2);
-          packetChecksum = cchunk[i + 2 + packetLength - 1];
-
-          let crc = 0x00;
-
+        if (copyChunk.length >= lastChunkItem) {
           crc = crc ^ packetSource;
           crc = crc ^ packetLength;
           crc = crc ^ packetDestination;
 
-          for (let j = 0; j < packaetMessage.length; j++) {
-            crc = crc ^ packaetMessage[j];
+          for (let j = 0; j < packetMessage.length; j++) {
+            crc = crc ^ packetMessage[j];
           }
 
           if (crc === packetChecksum) {
@@ -76,11 +67,11 @@ class IbusProtocol extends Transform {
               src: packetSource.toString(16),
               len: packetLength.toString(16),
               dst: packetDestination.toString(16),
-              msg: packaetMessage,
+              msg: packetMessage,
               crc: packetChecksum.toString(16),
             });
 
-            endOfLastMessage = i + 2 + packetLength;
+            endOfLastMessage = lastChunkItem;
             i = endOfLastMessage - 1;
           }
         }
@@ -93,12 +84,12 @@ class IbusProtocol extends Transform {
       }
 
       if (endOfLastMessage !== -1) {
-        this.buffer = cchunk.slice(endOfLastMessage);
+        this.buffer = copyChunk.slice(endOfLastMessage);
         logger.debug(`Sliced data: ${endOfLastMessage} ${this.buffer}`);
       } else {
         if (this.buffer.length > 500) {
           logger.warning('Dropping some data..');
-          this.buffer = cchunk.slice(chunk.length - 300);
+          this.buffer = copyChunk.slice(chunk.length - 300);
         }
       }
     }

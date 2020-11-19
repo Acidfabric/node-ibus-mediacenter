@@ -1,17 +1,16 @@
 import autoBind from 'auto-bind';
 
+import { Base } from '../base';
 import { interfaces } from '../constants';
-import loggerSystem from '../logger';
 
 import { IbusInterface } from './IbusInterface.js';
 import { IncommingMessage } from './types.js';
 
-const logger = loggerSystem.child({ service: 'IbusReader' });
-
-class IbusReader {
+class IbusReader extends Base {
   ibusInterface: IbusInterface;
 
   constructor(ibusInterface: IbusInterface) {
+    super('IbusReader');
     this.ibusInterface = ibusInterface;
 
     autoBind(this);
@@ -21,7 +20,7 @@ class IbusReader {
   }
 
   private onSignalInt() {
-    this.ibusInterface.shutdown(function () {
+    this.ibusInterface.shutdown(() => {
       process.exit();
     });
   }
@@ -36,12 +35,11 @@ class IbusReader {
   }
 
   private onIbusData(data: IncommingMessage) {
-    logger.info(`Id: ${data.id}`);
-    logger.info(`From: ${this.getDeviceName(data.src)}`);
-    logger.info(`To: ${this.getDeviceName(data.dst)}`);
-    logger.info(`Message: ${data.msg}`);
-    logger.info('------------------------------------');
-    logger.info('\n');
+    this.logger.info(`Id: ${data.id}`);
+    this.logger.info(`From: ${this.getDeviceName(data.src)}`);
+    this.logger.info(`To: ${this.getDeviceName(data.dst)}`);
+    this.logger.info(`Message: ${data.msg}`);
+    this.logger.info('------------------------------------');
   }
 }
 

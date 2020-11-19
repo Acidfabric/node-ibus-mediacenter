@@ -1,17 +1,17 @@
 import autoBind from 'auto-bind';
 
 import { interfaces, messages } from '../constants';
+import { Base } from '../base';
 import { getPaddedLenBuf } from '../utils';
 import { IbusInterface } from '../ibus';
-import logginSystem from '../logger';
 
-const logger = logginSystem.child({ service: 'BordMonitorOutput' });
-
-class GraphicsNavigationOutputDevice {
+class GraphicsNavigationOutputDevice extends Base {
   private ibusInterface: IbusInterface;
 
   constructor(ibusInterface: IbusInterface) {
-    logger.debug('Start.');
+    super('BordMonitorOutput');
+
+    this.logger.debug('Start.');
 
     this.ibusInterface = ibusInterface;
 
