@@ -1,4 +1,4 @@
-import { GraphicsNavigationOutputDevice, IbusDebuggerDevice, MK4ToMk3CDTextDevice } from './devices';
+import { GraphicsNavigationOutputDevice, MK4ToMk3CDTextDevice } from './devices';
 import { IbusEventListener, KeyboardEventListener } from './listeners';
 import { BluetoothClient } from './clients';
 import { IbusInterface } from './ibus';
