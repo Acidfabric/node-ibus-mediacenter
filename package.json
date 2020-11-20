@@ -11,9 +11,7 @@
     "npm": ">=6.0.0"
   },
   "scripts": {
-    "start": "npm-run-all -p watch:src watch:dist",
-    "watch:src": "webpack --config webpack.development.js",
-    "watch:dist": "nodemon ./dist/index.js",
+    "start": "DISPLAY=:0 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket webpack --config webpack.development.js",
     "build": "webpack --config webpack.production.js",
     "listports": "babel-node src/helpers/listPorts.ts --extensions '.ts'",
     "sniff": "babel-node src/helpers/ibusSniffer.ts --extensions '.ts'"
@@ -45,8 +43,7 @@
     "eslint": "^7.13.0",
     "eslint-config-prettier": "^6.15.0",
     "eslint-plugin-prettier": "^3.1.4",
-    "nodemon": "^2.0.6",
-    "npm-run-all": "^4.1.5",
+    "nodemon-webpack-plugin": "^4.3.2",
     "prettier": "^2.1.2",
     "typescript": "^4.0.5",
     "webpack": "^5.6.0",
