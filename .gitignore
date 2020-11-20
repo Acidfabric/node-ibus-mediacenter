@@ -3,3 +3,4 @@ dist
 raw
 .tmp
 yarn-error.log
+**/.DS_Store
