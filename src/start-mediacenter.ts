@@ -1,3 +1,5 @@
+import os from 'os';
+
 import { GraphicsNavigationOutputDevice, MK4ToMk3CDTextDevice } from './devices';
 import { IbusEventListener, KeyboardEventListener } from './listeners';
 import { BluetoothClient } from './clients';
@@ -57,15 +59,19 @@ function startup() {
   // const ibusReader = new IbusReader(ibusInterface);
 
   const navOutput = new GraphicsNavigationOutputDevice(ibusInterface);
-  const bluetoothDevice = new BluetoothClient(navOutput);
   new MK4ToMk3CDTextDevice(ibusInterface, navOutput);
 
-  // const ibusDebuggerDevice = new IbusDebuggerDevice(ibusInterface);
-  // new KeyboardEventListener('ibus', ibusDebuggerDevice);
-  new KeyboardEventListener('phone', bluetoothDevice);
+  // DBUS only works on Linux syste,
+  const osType = os.type();
+  if (osType.toLowerCase() === 'linux') {
+    const bluetoothDevice = new BluetoothClient(navOutput);
+    // const ibusDebuggerDevice = new IbusDebuggerDevice(ibusInterface);
+    // new KeyboardEventListener('ibus', ibusDebuggerDevice);
+    new KeyboardEventListener('phone', bluetoothDevice);
 
-  const ibusEventClient = new IbusEventListener(ibusInterface);
-  ibusEventClient.setRemoteControlClient('phone', bluetoothDevice);
+    const ibusEventClient = new IbusEventListener(ibusInterface);
+    ibusEventClient.setRemoteControlClient('phone', bluetoothDevice);
+  }
 }
 
 export { startup };
