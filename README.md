@@ -2,7 +2,7 @@
 
 You can use this package with Resler's interface (http://www.reslers.de/IBUS/index.html) or similar Ibus adapters.
 
-Configure your device location in `config.ts`. To find available devices run command `npx @serialport/list` in terminal.
+Configure your device location in `config.ts`. To find available devices run command `yarn listports` in terminal.
 
 ## Testing
 
