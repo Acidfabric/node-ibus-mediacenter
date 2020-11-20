@@ -1,4 +1,5 @@
 node_modules
 dist
+raw
 .tmp
-src/raw/dumps
+yarn-error.log

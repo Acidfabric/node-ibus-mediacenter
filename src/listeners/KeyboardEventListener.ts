@@ -78,7 +78,10 @@ class KeyboardEventListener extends Base {
       }
     });
 
-    process.stdin.setRawMode(true);
+    if (process.stdin.isTTY) {
+      process.stdin.setRawMode(true);
+    }
+
     process.stdin.resume();
   }
 }

@@ -14,10 +14,9 @@
     "start": "npm-run-all -p watch:src watch:dist",
     "watch:src": "webpack --config webpack.development.js",
     "watch:dist": "nodemon ./dist/index.js",
-    "prepare": "yarn build",
     "build": "webpack --config webpack.production.js",
-    "listports": "ts-node src/helpers/listPorts.ts",
-    "sniff": "ts-node src/helpers/ibusSniffer.ts"
+    "listports": "babel-node src/helpers/listPorts.ts --extensions '.ts'",
+    "sniff": "babel-node src/helpers/ibusSniffer.ts --extensions '.ts'"
   },
   "dependencies": {
     "auto-bind": "^4.0.0",
@@ -31,6 +30,7 @@
   "devDependencies": {
     "@babel/cli": "^7.12.1",
     "@babel/core": "^7.12.3",
+    "@babel/node": "^7.12.6",
     "@babel/plugin-proposal-class-properties": "^7.12.1",
     "@babel/plugin-transform-runtime": "^7.12.1",
     "@babel/preset-env": "^7.12.1",

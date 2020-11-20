@@ -6,9 +6,11 @@
     "strict": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
-    // delete later
     "noImplicitAny": false,
-    "noImplicitThis": false
+    "noImplicitThis": false,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "isolatedModules": true
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules"]
