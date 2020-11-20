@@ -11,7 +11,7 @@
     "npm": ">=6.0.0"
   },
   "scripts": {
-    "start": "DISPLAY=:0 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket webpack --config webpack.development.js",
+    "start": "webpack --config webpack.development.js",
     "build": "webpack --config webpack.production.js",
     "listports": "babel-node src/helpers/listPorts.ts --extensions '.ts'",
     "sniff": "babel-node src/helpers/ibusSniffer.ts --extensions '.ts'"
