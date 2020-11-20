@@ -5,8 +5,16 @@ name: Typescript CI
 
 on:
   push:
+    paths:
+    - 'src/**.ts'
+    - '**.index.ts' 
+    - '**.tsconfig.json'
     branches: [ master ]
   pull_request:
+    paths:
+    - 'src/**.ts'
+    - '**.index.ts' 
+    - '**.tsconfig.json'
     branches: [ master ]
 
 jobs:
