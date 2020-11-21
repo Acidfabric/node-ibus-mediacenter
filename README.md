@@ -26,6 +26,12 @@ From the src/raw folder run:
 
 `socat -U -d -d -d /dev/ttys006,clocal=1,cs8,nonblock=1,ixoff=0,ixon=0,ispeed=9600,ospeed=9600,raw,echo=0,crtscts=0 FILE:test.bin`
 
+### TODO
+
+- [ ] Feature switch
+- [ ] AWS IoT
+- [ ] 
+
 <!-- To emulate virtual interface -->
 <!-- socat -d -d PTY PTY -->
 <!-- echo -e -n "\x50\x04\x68\x3B\x21\xA6" > /dev/ttys014 -->
