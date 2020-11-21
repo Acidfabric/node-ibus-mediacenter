@@ -30,7 +30,6 @@ From the src/raw folder run:
 
 - [ ] Feature switch
 - [ ] AWS IoT
-- [ ] 
 
 <!-- To emulate virtual interface -->
 <!-- socat -d -d PTY PTY -->
